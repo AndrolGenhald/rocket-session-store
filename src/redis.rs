@@ -108,12 +108,12 @@ where
 		let key = self.to_key(id);
 		let mut cmd = redis::cmd("GET");
 		cmd.arg(key);
-		let mut con = self.client.get_connection().map_err(|_| SessionError)?;
-		let val = con.req_command(&cmd).map_err(|_| SessionError)?;
+		let mut con = self.client.get_connection()?;
+		let val = con.req_command(&cmd)?;
 		use redis::Value::*;
 		Ok(match val {
 			Nil => None,
-			Data(ref bytes) => Some(from_slice(bytes).expect("Failed to deserialize")),
+			Data(ref bytes) => Some(from_slice(bytes)?),
 			_ => None,
 		})
 	}
@@ -122,12 +122,12 @@ where
 		let key = self.to_key(id);
 		let mut cmd = redis::cmd("SET");
 		cmd.arg(key);
-		let serialized = to_string(&value).expect("Failed to serialize");
+		let serialized = to_string(&value)?;
 		cmd.arg(serialized);
 		cmd.arg("EX");
 		cmd.arg(duration.as_secs());
-		let mut con = self.client.get_connection().map_err(|_| SessionError)?;
-		con.req_command(&cmd).map_err(|_| SessionError)?;
+		let mut con = self.client.get_connection()?;
+		con.req_command(&cmd)?;
 
 		Ok(())
 	}
@@ -137,8 +137,8 @@ where
 		let mut cmd = redis::cmd("EXPIRE");
 		cmd.arg(key);
 		cmd.arg(duration.as_secs());
-		let mut con = self.client.get_connection().map_err(|_| SessionError)?;
-		con.req_command(&cmd).map_err(|_| SessionError)?;
+		let mut con = self.client.get_connection()?;
+		con.req_command(&cmd)?;
 
 		Ok(())
 	}
@@ -147,8 +147,8 @@ where
 		let key = self.to_key(id);
 		let mut cmd = redis::cmd("DEL");
 		cmd.arg(key);
-		let mut con = self.client.get_connection().map_err(|_| SessionError)?;
-		con.req_command(&cmd).map_err(|_| SessionError)?;
+		let mut con = self.client.get_connection()?;
+		con.req_command(&cmd)?;
 
 		Ok(())
 	}

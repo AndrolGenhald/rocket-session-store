@@ -330,8 +330,26 @@ pub type SessionResult<T> = Result<T, SessionError>;
 /// These can be problems like a database connection drop.
 /// It implements [Responder], returning a 500 status error.
 #[derive(Error, Debug)]
-#[error("could not access the session store")]
-pub struct SessionError;
+#[non_exhaustive]
+pub enum SessionError {
+	#[error("serialization error: {0}")]
+	SerializationError(#[from] serde_json::Error),
+	#[error(transparent)]
+	StorageError(#[from] SessionStoreError),
+}
+
+#[derive(Error, Debug)]
+#[non_exhaustive]
+pub enum SessionStoreError {
+	#[error("redis storage error: {0}")]
+	RedisError(#[from] ::redis::RedisError),
+}
+
+impl From<::redis::RedisError> for SessionError {
+	fn from(e: ::redis::RedisError) -> Self {
+		Self::StorageError(SessionStoreError::RedisError(e))
+	}
+}
 
 impl<'r, 'o: 'r> Responder<'r, 'o> for SessionError {
 	fn respond_to(self, _request: &'r Request<'_>) -> rocket::response::Result<'o> {
