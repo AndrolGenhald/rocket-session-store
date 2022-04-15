@@ -1,4 +1,4 @@
-//! An in-memory implementationof a session store.
+//! An in-memory implementation of a session store.
 //!
 //! This module provides [MemoryStore], an implementation of [Store]
 //! to be used for testing and development. It is not optimized for production

@@ -135,7 +135,7 @@ fn generic_expiration_test(store: impl Store<Value = String> + 'static) {
 		let session_store: SessionStore<String> = SessionStore {
 			store: Box::new(store),
 			name: "token".into(),
-			duration: Duration::from_secs(1),
+			duration: Duration::from_millis(100),
 			cookie_builder: CookieBuilder::new("", ""),
 		};
 		let rocket = example_rocket(session_store);
@@ -146,7 +146,7 @@ fn generic_expiration_test(store: impl Store<Value = String> + 'static) {
 	assert_eq!(res1.status(), Status::Ok);
 	let res2 = client.get("/get_name").dispatch();
 	assert_eq!(res2.status(), Status::Ok);
-	sleep(Duration::from_secs(2));
+	sleep(Duration::from_millis(110));
 	let res3 = client.get("/get_name").dispatch();
 	assert_eq!(res3.status(), Status::NotFound);
 }
@@ -184,7 +184,7 @@ fn generic_refresh_test(store: impl Store<Value = String> + 'static) {
 		let session_store: SessionStore<String> = SessionStore {
 			store: Box::new(store),
 			name: "token".into(),
-			duration: Duration::from_secs(2),
+			duration: Duration::from_millis(150),
 			cookie_builder: CookieBuilder::new("", ""),
 		};
 		let rocket = example_rocket(session_store);
@@ -193,10 +193,10 @@ fn generic_refresh_test(store: impl Store<Value = String> + 'static) {
 
 	let res1 = client.post("/set_name/TestingName").dispatch();
 	assert_eq!(res1.status(), Status::Ok);
-	sleep(Duration::from_millis(1_500));
+	sleep(Duration::from_millis(100));
 	let res2 = client.post("/refresh").dispatch();
 	assert_eq!(res2.status(), Status::Ok);
-	sleep(Duration::from_millis(1_500));
+	sleep(Duration::from_millis(100));
 	let res3 = client.get("/get_name").dispatch();
 	assert_eq!(res3.status(), Status::Ok);
 }

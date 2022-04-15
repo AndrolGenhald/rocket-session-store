@@ -87,6 +87,10 @@ fn rocket() -> _ {
  - To prevent session fixation attacks, it is important to regenerate the session token when a user logs in. There is an
    example of how to do this [here](Session::regenerate_token).
 
+# TODO
+ - Redis
+   - Use a connection pool instead of creating a new connection for every operation.
+
 # Contributing
 
 If you wish to contribute, please read [CONTRIBUTING.md](CONTRIBUTING.md).

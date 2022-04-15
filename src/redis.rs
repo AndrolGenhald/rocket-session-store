@@ -124,8 +124,8 @@ where
 		cmd.arg(key);
 		let serialized = to_string(&value)?;
 		cmd.arg(serialized);
-		cmd.arg("EX");
-		cmd.arg(duration.as_secs());
+		cmd.arg("PX");
+		cmd.arg(u64::try_from(duration.as_millis()).unwrap_or(u64::MAX));
 		let mut con = self.client.get_connection()?;
 		con.req_command(&cmd)?;
 
@@ -134,9 +134,9 @@ where
 
 	async fn touch(&self, id: &str, duration: Duration) -> SessionResult<()> {
 		let key = self.to_key(id);
-		let mut cmd = redis::cmd("EXPIRE");
+		let mut cmd = redis::cmd("PEXPIRE");
 		cmd.arg(key);
-		cmd.arg(duration.as_secs());
+		cmd.arg(u64::try_from(duration.as_millis()).unwrap_or(u64::MAX));
 		let mut con = self.client.get_connection()?;
 		con.req_command(&cmd)?;
 
